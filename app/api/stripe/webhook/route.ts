@@ -1,6 +1,7 @@
 import Stripe from 'stripe';
 import { handleSubscriptionChange, stripe } from '@/lib/payments/stripe';
 import { NextRequest, NextResponse } from 'next/server';
+import { creditService } from '@/lib/services/credit-service';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
@@ -20,11 +21,15 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const subscription = event.data.object as Stripe.Subscription;
   switch (event.type) {
+    case 'customer.subscription.created':
     case 'customer.subscription.updated':
     case 'customer.subscription.deleted':
-      const subscription = event.data.object as Stripe.Subscription;
       await handleSubscriptionChange(subscription);
+      break;
+    case 'invoice.paid':
+      await creditService.grantCreditsForSubscription(subscription);
       break;
     default:
       console.log(`Unhandled event type ${event.type}`);

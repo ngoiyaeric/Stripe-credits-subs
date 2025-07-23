@@ -269,10 +269,15 @@ function InviteTeamMember() {
   );
 }
 
+import { CreditBalance } from '@/components/credits/credit-components';
+
 export default function SettingsPage() {
+  const { data: teamData } = useSWR<TeamDataWithMembers>('/api/team', fetcher);
+
   return (
     <section className="flex-1 p-4 lg:p-8">
       <h1 className="text-lg lg:text-2xl font-medium mb-6">Team Settings</h1>
+      {teamData && <CreditBalance teamId={teamData.id} />}
       <Suspense fallback={<SubscriptionSkeleton />}>
         <ManageSubscription />
       </Suspense>
