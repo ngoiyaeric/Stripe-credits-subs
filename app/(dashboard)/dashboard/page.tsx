@@ -269,12 +269,45 @@ function InviteTeamMember() {
   );
 }
 
+function MyAppSkeleton() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>My App</CardTitle>
+      </CardHeader>
+    </Card>
+  );
+}
+
+function MyApp() {
+  const { data: teamData } = useSWR<TeamDataWithMembers>('/api/team', fetcher);
+  const { data: myAppData } = useSWR('/api/my-app', fetcher);
+
+  if (teamData?.subscriptionStatus !== 'active') {
+    return null;
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>My App</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p>{myAppData?.message}</p>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function SettingsPage() {
   return (
     <section className="flex-1 p-4 lg:p-8">
       <h1 className="text-lg lg:text-2xl font-medium mb-6">Team Settings</h1>
       <Suspense fallback={<SubscriptionSkeleton />}>
         <ManageSubscription />
+      </Suspense>
+      <Suspense fallback={<MyAppSkeleton />}>
+        <MyApp />
       </Suspense>
       <Suspense fallback={<TeamMembersSkeleton />}>
         <TeamMembers />
