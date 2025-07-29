@@ -293,6 +293,7 @@ function MyApp() {
         <CardTitle>My App</CardTitle>
       </CardHeader>
       <CardContent>
+        {/* <p>Welcome to your new application!</p> */}
         <p>{myAppData?.message}</p>
       </CardContent>
     </Card>
@@ -306,6 +307,14 @@ export default function SettingsPage() {
       <Suspense fallback={<SubscriptionSkeleton />}>
         <ManageSubscription />
       </Suspense>
+      {/*
+      <Suspense fallback={<TeamMembersSkeleton />}>
+        <TeamMembers />
+      </Suspense>
+      <Suspense fallback={<InviteTeamMemberSkeleton />}>
+        <InviteTeamMember />
+      </Suspense>
+      */}
       <Suspense fallback={<MyAppSkeleton />}>
         <MyApp />
       </Suspense>
