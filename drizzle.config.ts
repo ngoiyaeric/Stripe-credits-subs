@@ -1,3 +1,4 @@
+/*
 import type { Config } from 'drizzle-kit';
 
 export default {
@@ -8,3 +9,4 @@ export default {
     url: process.env.POSTGRES_URL!,
   },
 } satisfies Config;
+*/

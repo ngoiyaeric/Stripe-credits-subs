@@ -1,7 +1,8 @@
 import { z } from 'zod';
-import { TeamDataWithMembers, User } from '@/lib/db/schema';
-import { getTeamForUser, getUser } from '@/lib/db/queries';
+import { getTeamForUser } from '@/lib/db/queries';
 import { redirect } from 'next/navigation';
+import { getUser } from './session';
+import { User } from '@supabase/supabase-js';
 
 export type ActionState = {
   error?: string;
@@ -55,7 +56,7 @@ export function validatedActionWithUser<S extends z.ZodType<any, any>, T>(
 
 type ActionWithTeamFunction<T> = (
   formData: FormData,
-  team: TeamDataWithMembers
+  team: any
 ) => Promise<T>;
 
 export function withTeam<T>(action: ActionWithTeamFunction<T>) {
