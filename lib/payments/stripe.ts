@@ -3,9 +3,10 @@ import { redirect } from 'next/navigation';
 import { Team } from '@/lib/db/schema';
 import {
   getTeamByStripeCustomerId,
-  getUser,
   updateTeamSubscription
 } from '@/lib/db/queries';
+import { supabase } from '@/lib/supabase/client';
+// import { getUser } from '@/lib/db/queries';
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-04-30.basil'
@@ -18,7 +19,9 @@ export async function createCheckoutSession({
   team: Team | null;
   priceId: string;
 }) {
-  const user = await getUser();
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
 
   if (!team || !user) {
     redirect(`/sign-up?redirect=checkout&priceId=${priceId}`);
@@ -36,7 +39,7 @@ export async function createCheckoutSession({
     success_url: `${process.env.BASE_URL}/api/stripe/checkout?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${process.env.BASE_URL}/pricing`,
     customer: team.stripeCustomerId || undefined,
-    client_reference_id: user.id.toString(),
+    client_reference_id: user.id,
     allow_promotion_codes: true,
     subscription_data: {
       trial_period_days: 14
@@ -45,6 +48,41 @@ export async function createCheckoutSession({
 
   redirect(session.url!);
 }
+
+// export async function createCheckoutSession({
+//   team,
+//   priceId
+// }: {
+//   team: Team | null;
+//   priceId: string;
+// }) {
+//   const user = await getUser();
+
+//   if (!team || !user) {
+//     redirect(`/sign-up?redirect=checkout&priceId=${priceId}`);
+//   }
+
+//   const session = await stripe.checkout.sessions.create({
+//     payment_method_types: ['card'],
+//     line_items: [
+//       {
+//         price: priceId,
+//         quantity: 1
+//       }
+//     ],
+//     mode: 'subscription',
+//     success_url: `${process.env.BASE_URL}/api/stripe/checkout?session_id={CHECKOUT_SESSION_ID}`,
+//     cancel_url: `${process.env.BASE_URL}/pricing`,
+//     customer: team.stripeCustomerId || undefined,
+//     client_reference_id: user.id.toString(),
+//     allow_promotion_codes: true,
+//     subscription_data: {
+//       trial_period_days: 14
+//     }
+//   });
+
+//   redirect(session.url!);
+// }
 
 export async function createCustomerPortalSession(team: Team) {
   if (!team.stripeCustomerId || !team.stripeProductId) {
